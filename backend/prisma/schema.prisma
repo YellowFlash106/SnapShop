@@ -25,6 +25,7 @@ model User {
   role     String    @default("user")
   products Product[]
   cart     Cart?
+  orders Order[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -37,10 +38,13 @@ model Product {
   price       Float
   stock       Int
 
+  reservedStock Int @default(0)
+
   createdById String
   createdBy   User   @relation(fields: [createdById], references: [id])
 
   cartItems CartItem[]
+  orderItems OrderItem[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -71,4 +75,57 @@ model CartItem {
   @@unique([cartId, productId])
 
   createdAt DateTime @default(now())
+}
+
+
+model Order {
+  id          Int         @id @default(autoincrement())
+
+  userId      String
+  user        User        @relation(fields: [userId], references: [id])
+
+  totalAmount Float
+  status      OrderStatus @default(PENDING)
+
+  items       OrderItem[]
+  histories   OrderHistory[]
+
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+model OrderItem {
+  id          Int      @id @default(autoincrement())
+
+  orderId     Int
+  order       Order    @relation(fields: [orderId], references: [id])
+
+  productId   Int
+  product     Product  @relation(fields: [productId], references: [id])
+
+  quantity    Int
+
+  price       Float
+
+  createdAt   DateTime @default(now())
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+model OrderHistory {
+  id        Int      @id @default(autoincrement())
+
+  orderId   Int
+  status    OrderStatus
+
+  createdAt DateTime @default(now())
+
+  order     Order @relation(fields: [orderId], references: [id])
 }

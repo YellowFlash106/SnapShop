@@ -4,7 +4,7 @@ const router = express.Router();
 
 const auth = require('../middleware/auth.middleware');
 
-const isAdmin = require('../middleware/isAdmin')
+const isAdmin = require('../middleware/isAdmin.middleware')
 
 const { createProduct, getAllProducts,  getProduct,  updateProduct,  deleteProduct} = require("../controllers/product.controller");
 

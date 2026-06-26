@@ -256,7 +256,6 @@ const cancelOrder = async (req, res) => {
     }
 }
 
-
 const updateOrderStatus = async (req, res) => {
 
     try{
@@ -475,7 +474,7 @@ const reorder = async (req, res) => {
 }
 
 
-const getorderSummary = async (req, res) => {
+const getOrderSummary = async (req, res) => {
     try {
 
     const orderId = Number(req.params.id);
@@ -519,6 +518,7 @@ const getorderSummary = async (req, res) => {
     }
 }
 
+
 const getInvoice = async (req, res) => {
     try{
 
@@ -537,4 +537,60 @@ const getInvoice = async (req, res) => {
 }
 
 
-module.exports = { createOrder , getUserOrders, getOrderById, cancelOrder, updateOrderStatus, getOrderHistory, getOrderTracking, getorderSummary, generateInvoice, reorder };
+const confirmOrder = async (req, res) =>{
+    try {
+        const orderId = Number(req.params.id);
+
+        const order = await prisma.order.findUnique({
+            where : { id: orderId },
+            include : { items: true },
+        })
+
+        if(!order){
+            return res.status(404).json({
+                success : false,
+                message: "Order not found"
+            })
+        }
+
+        const updated = await prisma.$transaction(async (tx)=> {
+            for(const item of order.items){
+                await tx.product.update({
+                    where: { id : item.productId },
+                    data: {
+                        stock: {
+                            decrement: item.quantity,
+                        },
+                        reverseStock: {
+                            decrement: item.quantity,
+                        },
+                    },
+                });
+            }
+
+            return tx.order.update({
+                where: { id : orderId },
+                data: {
+                     status : "CONFIRMED"
+                },
+            })
+        })
+
+        res.status(200).json({
+            success: true,
+            message: " Order confirmed",
+            order : updated,
+        })
+
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message,
+        });
+    }
+
+}
+
+
+module.exports = { createOrder , getUserOrders, getOrderById, cancelOrder, updateOrderStatus, getOrderHistory, getOrderTracking, reorder, getOrderSummary, getInvoice, confirmOrder };
+

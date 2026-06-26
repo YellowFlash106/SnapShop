@@ -7,12 +7,14 @@ const app = express();
 const authRouter = require("./routes/auth.route")
 const productRouter = require("./routes/product.route")
 const orderRouter = require("./routes/order.route")
-
-
 const cartRouter = require("./routes/cart.route")
+const { globalLimiter } = require('./middleware/rateLimiter.middleware')
+
+
 
 app.use(express.json());
 app.use(cors());
+app.use(globalLimiter());
 
 app.use("/api/auth", authRouter);
 app.use("/api/cart", cartRouter);

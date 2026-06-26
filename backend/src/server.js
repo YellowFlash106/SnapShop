@@ -14,7 +14,7 @@ const { globalLimiter } = require('./middleware/rateLimiter.middleware')
 
 app.use(express.json());
 app.use(cors());
-app.use(globalLimiter());
+app.use(globalLimiter);
 
 app.use("/api/auth", authRouter);
 app.use("/api/cart", cartRouter);

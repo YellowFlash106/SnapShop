@@ -1,22 +1,22 @@
 const PDFDocument = require('pdfkit');
 const prisma = require('../config/prisma');
 
-const generateInvoice = async (req, res) => {
-    const orderId = Number(req.params.id);
+const generateInvoice = async (orderId, res, userId) => {
+    const parsedOrderId = Number(orderId);
 
     const order = await prisma.order.findUnique({
-        where: { id: orderId },
+        where: { id: parsedOrderId },
         include: { items: true, },
     });
 
-    if(!order || order.userId !== req.user.id) {
+    if(!order || order.userId !== userId) {
         throw new Error("Order not found");
     }
 
     const doc = new PDFDocument();
 
     res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `inline; attachment;filename=invoice-${orderId}.pdf`);
+    res.setHeader('Content-Disposition', `inline; attachment;filename=invoice-${parsedOrderId}.pdf`);
 
     doc.pipe(res);
 

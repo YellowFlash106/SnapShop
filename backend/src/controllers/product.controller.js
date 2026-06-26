@@ -50,9 +50,32 @@ const getAllProducts = async (req, res) =>{
         const limit = Number(req.query.limit) || 10;
         const search = req.query.search || "";
 
+        const { category, minPrice, maxPrice } = req.query;
+
+        const where = {};
+        
+        if(category){
+            where.category = {
+                name: {
+                    equals: category,
+                    mode: "insensitive"
+                }
+            };
+        }
+        if(minPrice || maxPrice){
+            where.price = {};
+
+            if(minPrice){
+                where.price.gte = Number(minPrice);
+            }
+            if(maxPrice){
+                where.price.lte = Number(maxPrice);
+            }
+        }
 
         const products = await prisma.product.findMany({
             where: {
+                ...where,
                 name: {
                     contains: search,
                     mode: "insensitive"
@@ -76,6 +99,7 @@ const getAllProducts = async (req, res) =>{
 
         const totalProducts = await prisma.product.count({
             where: {
+                ...where,
                 name: {
                     contains: search,
                     mode: "insensitive"
@@ -146,6 +170,42 @@ const getProduct = async (req, res) =>{
         });
     }
 }
+
+
+const searchProducts = async (req, res) => {
+  try {
+    const { search } = req.query;
+
+    const where = search
+      ? {
+          OR: [
+            {
+              name: {
+                contains: search,
+                mode: "insensitive",
+              },
+            },
+            {
+              description: {
+                contains: search,
+                mode: "insensitive",
+              },
+            },
+          ],
+        }
+      : {};
+
+    const products = await prisma.product.findMany({
+      where,
+    });
+
+    res.json(products);
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
 
 
 const updateProduct = async (req, res) =>{
@@ -233,5 +293,183 @@ const deleteProduct = async (req, res) =>{
     }
 }
 
-module.exports = { createProduct, getAllProducts, getProduct, updateProduct, deleteProduct };
+const addReview = async (req, res) => {
+    try {
+        const { productId } = req.params;
+        const { rating, comment } = req.body;
+
+        const parsedProductId = Number(productId);
+
+        if (!Number.isInteger(parsedProductId)) {
+            return res.status(400).json({
+                success: false,
+                message: "Product id must be a number"
+            });
+        }
+
+        const product = await prisma.product.findUnique({
+            where: { id: parsedProductId },
+        });
+
+        if (!product) {
+            return res.status(404).json({
+                success: false,
+                message: "Product not found"
+            });
+        }
+
+        const review = await prisma.review.create({
+            data: {
+                rating: Number(rating),
+                comment,
+                productId: parsedProductId,
+                userId: req.user.id,
+            },
+            include: {
+                user: {
+                    select: {
+                        id: true,
+                        name: true,
+                        email: true
+                    }
+                }
+            }
+        });
+
+        return res.status(201).json({
+            success: true,
+            message: "Review added successfully",
+            review
+        });
+
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+}
+
+const getProductReviews = async (req, res) => {
+    try {
+        const { productId } = req.params;
+
+        const reviews = await prisma.review.findMany({
+            where: { productId: Number(productId) },
+            include: {
+                user: {
+                    select: {
+                        id: true,
+                        name: true,
+                        email: true
+                    }
+                }
+            }
+        });
+
+        return res.status(200).json({
+            success: true,
+            message: "Reviews fetched successfully",
+            reviews
+        });
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+}
+
+const addToWishlist = async (req, res) => {
+    try {
+        const { productId } = req.params;
+        const parsedProductId = Number(productId);
+
+        if (!Number.isInteger(parsedProductId)) {
+            return res.status(400).json({
+                success: false,
+                message: "Product id must be a number"
+            });
+        }
+
+        const item = await prisma.wishlist.create({
+            data: {
+                userId: req.user.id,
+                productId: parsedProductId
+            }
+        })
+
+        return res.status(201).json({
+            success: true,
+            message: "Item added to wishlist successfully",
+            item
+        });
+
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+}
+
+const getWishlist = async (req, res) => {
+
+    try {
+        const items = await prisma.wishlist.findMany({
+            where: { userId: req.user.id },
+            include: {
+                product: true
+            }
+        });
+
+        return res.status(200).json({
+            success: true,
+            message: "Wishlist fetched successfully",
+            items
+        });
+        
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+}
+
+const removeFromWishlist = async (req, res) => {
+    try {
+        const { productId } = req.params;
+        const parsedProductId = Number(productId);
+
+        if (!Number.isInteger(parsedProductId)) {
+            return res.status(400).json({
+                success: false,
+                message: "Product id must be a number"
+            });
+        }
+
+        await prisma.wishlist.deleteMany({
+            where: {
+                userId: req.user.id,
+                productId: parsedProductId
+            }
+        });
+
+        return res.status(200).json({
+            success: true,
+            message: "Item removed from wishlist successfully"
+        });
+
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+}
+
+
+
+module.exports = { createProduct, getAllProducts, getProduct, updateProduct, deleteProduct , searchProducts, addReview, getProductReviews, addToWishlist, getWishlist, removeFromWishlist };
 

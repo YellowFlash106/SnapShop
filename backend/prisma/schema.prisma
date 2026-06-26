@@ -18,14 +18,16 @@ datasource db {
 }
 
 model User {
-  id       String    @id @default(uuid())
+  id       String     @id @default(uuid())
   name     String
-  email    String    @unique
+  email    String     @unique
   password String
-  role     String    @default("user")
+  role     String     @default("user")
   products Product[]
   cart     Cart?
-  orders Order[]
+  orders   Order[]
+  reviews  Review[]
+  wishlist Wishlist[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -45,14 +47,36 @@ model Product {
 
   reservedStock Int @default(0)
 
+  categoryId Int?
+  category   Category? @relation(fields: [categoryId], references: [id])
+
   createdById String
   createdBy   User   @relation(fields: [createdById], references: [id])
 
-  cartItems CartItem[]
+  cartItems  CartItem[]
   orderItems OrderItem[]
+
+  reviews  Review[]
+  wishlist Wishlist[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Wishlist {
+  id String @id @default(cuid())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  productId Int
+  product   Product @relation(fields: [productId], references: [id])
+}
+
+model Category {
+  id       Int       @id @default(autoincrement())
+  name     String    @unique
+  products Product[]
 }
 
 model Cart {
@@ -77,42 +101,42 @@ model CartItem {
   product   Product @relation(fields: [productId], references: [id])
 
   quantity Int @default(1)
-  @@unique([cartId, productId])
 
   createdAt DateTime @default(now())
+
+  @@unique([cartId, productId])
 }
 
-
 model Order {
-  id          Int         @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-  userId      String
-  user        User        @relation(fields: [userId], references: [id])
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
 
   totalAmount Float
   status      OrderStatus @default(PENDING)
 
-  items       OrderItem[]
-  histories   OrderHistory[]
+  items     OrderItem[]
+  histories OrderHistory[]
 
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model OrderItem {
-  id          Int      @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-  orderId     Int
-  order       Order    @relation(fields: [orderId], references: [id])
+  orderId Int
+  order   Order @relation(fields: [orderId], references: [id])
 
-  productId   Int
-  product     Product  @relation(fields: [productId], references: [id])
+  productId Int
+  product   Product @relation(fields: [productId], references: [id])
 
-  quantity    Int
+  quantity Int
 
-  price       Float
+  price Float
 
-  createdAt   DateTime @default(now())
+  createdAt DateTime @default(now())
 }
 
 enum OrderStatus {
@@ -125,12 +149,26 @@ enum OrderStatus {
 }
 
 model OrderHistory {
-  id        Int      @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-  orderId   Int
-  status    OrderStatus
+  orderId Int
+  status  OrderStatus
 
   createdAt DateTime @default(now())
 
-  order     Order @relation(fields: [orderId], references: [id])
+  order Order @relation(fields: [orderId], references: [id])
+}
+
+model Review {
+  id      Int     @id @default(autoincrement())
+  rating  Int
+  comment String?
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  productId Int
+  product   Product @relation(fields: [productId], references: [id])
+
+  createdAt DateTime @default(now())
 }

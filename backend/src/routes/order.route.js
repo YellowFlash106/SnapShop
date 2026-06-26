@@ -15,8 +15,8 @@ router.put("/:id/cancel", auth, cancelOrder);
 router.get("/:id/history", auth, getOrderHistory);
 router.patch("/:id/status", auth, updateOrderStatus);
 router.get("/:id/tracking", auth, getOrderTracking);
-router.patch("/orders/:id/confirm", auth, confirmOrder);
-router.get("/orders/:id", auth, getOrderSummary);
+router.patch("/:id/confirm", auth, confirmOrder);
+router.get("/:id/summary", auth, getOrderSummary);
 router.post("/:id/reorder", auth, reorder);
 router.get("/:id/invoice", auth, getInvoice);
 

@@ -84,15 +84,6 @@ const createOrder  = async (req, res) => {
                         price: item.product.price,
                     },
                 });
-
-                await tx.product.update({
-                    where: { id: item.productId },
-                    data: {
-                        reservedStock: {
-                            decrement: item.quantity,
-                        },
-                    },
-                });
             }
 
             await tx.cartItem.deleteMany({
@@ -219,27 +210,29 @@ const cancelOrder = async (req, res) => {
             })
         }
 
-        const updated = await prisma.order.$transaction(async (tx) => {
+        const updated = await prisma.$transaction(async (tx) => {
 
             for(const item of order.items){
                 await tx.product.update({
                     where: { id: item.productId },
                     data: { 
-                        stock: {
-                            decrement: quantity,
-                        },
                         reservedStock: {
                             decrement: item.quantity
                         },
                     },
                 });
             }
-        })
 
-        return tx.order.update({
-            where: { id: orderId },
-            data: { status: 'CANCELLED' },
-        });
+            await tx.order.update({
+                where: { id: orderId },
+                data: { status: 'CANCELLED' },
+            });
+
+            return tx.order.findUnique({
+                where: { id: orderId },
+                include: { items: true },
+            });
+        })
 
         return res.status(201).json({
             success: true,
@@ -561,7 +554,7 @@ const confirmOrder = async (req, res) =>{
                         stock: {
                             decrement: item.quantity,
                         },
-                        reverseStock: {
+                        reservedStock: {
                             decrement: item.quantity,
                         },
                     },

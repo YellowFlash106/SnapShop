@@ -392,6 +392,17 @@ const addToWishlist = async (req, res) => {
             });
         }
 
+        const product = await prisma.product.findUnique({
+            where: { id: parsedProductId },
+        });
+
+        if (!product) {
+            return res.status(404).json({
+                success: false,
+                message: "Product not found"
+            });
+        }
+        
         const item = await prisma.wishlist.create({
             data: {
                 userId: req.user.id,

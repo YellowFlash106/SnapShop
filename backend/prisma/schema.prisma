@@ -28,6 +28,7 @@ model User {
   orders   Order[]
   reviews  Review[]
   wishlist Wishlist[]
+  addresses Address[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -171,4 +172,28 @@ model Review {
   product   Product @relation(fields: [productId], references: [id])
 
   createdAt DateTime @default(now())
+}
+
+
+model Address {
+  id          Int      @id @default(autoincrement())
+
+  fullName    String
+  phone       String
+
+  addressLine String
+  city        String
+  state       String
+  country     String
+  postalCode  String
+
+  landmark    String?
+
+  isDefault   Boolean @default(false)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  userId      String
+  user        User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

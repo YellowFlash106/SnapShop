@@ -8,6 +8,7 @@ const authRouter = require("./routes/auth.route")
 const productRouter = require("./routes/product.route")
 const orderRouter = require("./routes/order.route")
 const cartRouter = require("./routes/cart.route")
+const addressRouter = require("./routes/address.route")
 const { globalLimiter } = require('./middleware/rateLimiter.middleware')
 
 
@@ -20,6 +21,7 @@ app.use("/api/auth", authRouter);
 app.use("/api/cart", cartRouter);
 app.use("/api/products", productRouter);
 app.use("/api/orders", orderRouter);
+app.use("/api/address", addressRouter);
 
 app.get('/', (req, res) => {
     res.json({

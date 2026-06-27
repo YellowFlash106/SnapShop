@@ -5,6 +5,8 @@ const isAdmin = (req, res, next) =>{
             message: "Access denied"
         })
     }
+
+    next();
 }
 
 module.exports = isAdmin;

@@ -16,6 +16,10 @@ const addressRouter = require("./routes/address.route")
 const adminRouter = require("./routes/admin.route")
 const adminReviewRouter = require("./routes/admin.review.route")
 const reviewRouter = require("./routes/review.route")
+const adminAnalyticsRouter = require("./routes/admin.analytics.route")
+const adminInventoryRouter = require("./routes/admin.inventory.route")
+const adminLogRouter = require("./routes/admin.log.route")
+
 
 const { globalLimiter } = require('./middleware/rateLimiter.middleware')
 
@@ -37,6 +41,9 @@ app.use("/api/orders", orderRouter);
 app.use("/api/address", addressRouter);
 app.use("/api/admin", adminRouter);
 app.use("/api/admin/reviews", adminReviewRouter);
+app.use("/api/admin/analytics", adminAnalyticsRouter);
+app.use("/api/admin/inventory", adminInventoryRouter);
+app.use("/api/admin/logs", adminLogRouter);
 app.use("/api/reviews", reviewRouter);
 
 app.get('/', (req, res) => {

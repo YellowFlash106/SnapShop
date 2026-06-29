@@ -1,135 +1,86 @@
 const prisma = require('../config/prisma');
+const asyncHandler = require("../utils/asyncHandler");
+const ApiError = require("../utils/ApiError");
+const ApiResponse = require("../utils/ApiResponse");
 
 
-const getAllReviews = async (req, res) => {
-
-    try {
-
-        const reviews = await prisma.review.findMany({
-            where: {
-                isDeleted: false
-            },
-            include: {
-                user: {
-                    select: {
-                        id: true,
-                        fullName: true,
-                        email: true,
-                    },
-                },
-                product: {
-                    select: {
-                        id: true,
-                        name: true,
-                    },
+const getAllReviews = asyncHandler(async (req, res) => {
+    const reviews = await prisma.review.findMany({
+        where: {
+            isDeleted: false,
+        },
+        include: {
+            user: {
+                select: {
+                    id: true,
+                    fullName: true,
+                    email: true,
                 },
             },
-            orderBy: {
-                createdAt: 'desc',
+            product: {
+                select: {
+                    id: true,
+                    name: true,
+                },
             },
-        })
+        },
+        orderBy: {
+            createdAt: 'desc',
+        },
+    });
 
-        return res.status(200).json({
-            success: true,
-            message: "Reviews fetched successfully",
-            data: reviews
-        })
-        
-    } catch (error) {
-        return res.status(500).json({
-            success: false,
-            message : " Internal server error"
-        })
-    }
-
-}
+    return res.status(200).json(
+        new ApiResponse(200, "Reviews fetched successfully", reviews)
+    );
+});
 
 
-const approveReview = async (req, res) => {
+const approveReview = asyncHandler(async (req, res) => {
+    const reviewId = Number(req.params.id);
 
-    try {
+    const review = await prisma.review.update({
+        where: { id: reviewId },
+        data: {
+            isApproved: true,
+            isHidden: false,
+        },
+    });
 
-        const reviewId = req.params.id;
-
-        const review = await prisma.review.update({
-            where: { id: reviewId },
-            data: { 
-                isApproved: true,
-                isHidden: false,
-             },
-        })
-
-        return res.status(200).json({
-            success: true,
-            message: "Review approved successfully",
-            data: review
-        })
-        
-    } catch (error) {
-        return res.status(500).json({
-            success: false,
-            message : " Internal server error"
-        })
-    }
-
-}
+    return res.status(200).json(
+        new ApiResponse(200, "Review approved successfully", review)
+    );
+});
 
 
-const hideReview = async (req, res) => {
+const hideReview = asyncHandler(async (req, res) => {
+    const reviewId = Number(req.params.id);
 
-    try {
+    const review = await prisma.review.update({
+        where: { id: reviewId },
+        data: {
+            isHidden: true,
+        },
+    });
 
-        const reviewId = req.params.id;
-
-        const review = await prisma.review.update({
-            where: { id: reviewId },
-            data: { 
-                isHidden: true
-             },
-        })
-
-        return res.status(200).json({
-            success: true,
-            message: "Review hidden successfully",
-            data: review
-        })
-        
-    } catch (error) {
-        return res.status(500).json({
-            success: false,
-            message : " Internal server error"
-        })
-    }
-
-}
+    return res.status(200).json(
+        new ApiResponse(200, "Review hidden successfully", review)
+    );
+});
 
 
-const deleteReview = async (req, res) => {
+const deleteReview = asyncHandler(async (req, res) => {
+    const reviewId = Number(req.params.id);
 
-    try {
+    const review = await prisma.review.update({
+        where: { id: reviewId },
+        data: {
+            isDeleted: true,
+        },
+    });
 
-        const reviewId = req.params.id;
-
-        const review = await prisma.review.update({
-            where: { id: reviewId },
-            data: { 
-                isDeleted: true
-             },
-        })
-
-        return res.status(200).json({
-            success: true,
-            message: "Review deleted successfully",
-            data: review
-        })
-        
-    } catch (error) {
-        return res.status(500).json({
-            success: false,
-            message : " Internal server error"
-        })
-    }
-
-}
+    return res.status(200).json(
+        new ApiResponse(200, "Review deleted successfully", review)
+    );
+});
 
 module.exports = { getAllReviews, approveReview, deleteReview, hideReview }

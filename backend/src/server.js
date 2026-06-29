@@ -2,9 +2,12 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
+const ApiError = require("./utils/ApiError");
 
 
 const app = express();
+
+const errorMiddleware = require("./middleware/error.middleware");
 const authRouter = require("./routes/auth.route")
 const productRouter = require("./routes/product.route")
 const orderRouter = require("./routes/order.route")
@@ -42,6 +45,12 @@ app.get('/', (req, res) => {
         message: "SnapShop API Runing"
     });
 })
+
+app.use((req, res, next) => {
+    next(new ApiError(404, `Route not found: ${req.originalUrl}`));
+});
+
+app.use(errorMiddleware);
 
 const PORT = process.env.PORT || 5000;
 

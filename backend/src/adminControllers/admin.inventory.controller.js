@@ -48,6 +48,7 @@ const getOutOfStockProducts = asyncHandler(async (req, res) => {
     }
 })
 
+
 const restockProduct = asyncHandler(async (req, res) => {
     try {
         const productId = Number(req.params.id);
@@ -83,6 +84,7 @@ const restockProduct = asyncHandler(async (req, res) => {
         throw new ApiError(500, "Failed to restock product");
     }
 })
+
 
 const updateStock = asyncHandler(async (req, res) => {
 

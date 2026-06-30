@@ -228,6 +228,7 @@ const deleteProduct = asyncHandler(async (req, res) => {
     );
 });
 
+
 const addReview = asyncHandler(async (req, res) => {
     const { productId } = req.params;
     const { rating, comment } = req.body;
@@ -269,6 +270,7 @@ const addReview = asyncHandler(async (req, res) => {
     );
 });
 
+
 const getProductReviews = asyncHandler(async (req, res) => {
     const { productId } = req.params;
 
@@ -289,6 +291,7 @@ const getProductReviews = asyncHandler(async (req, res) => {
         new ApiResponse(200, "Reviews fetched successfully", reviews)
     );
 });
+
 
 const addToWishlist = asyncHandler(async (req, res) => {
     const { productId } = req.params;
@@ -318,6 +321,7 @@ const addToWishlist = asyncHandler(async (req, res) => {
     );
 });
 
+
 const getWishlist = asyncHandler(async (req, res) => {
     const items = await prisma.wishlist.findMany({
         where: { userId: req.user.id },
@@ -330,6 +334,7 @@ const getWishlist = asyncHandler(async (req, res) => {
         new ApiResponse(200, "Wishlist fetched successfully", items)
     );
 });
+
 
 const removeFromWishlist = asyncHandler(async (req, res) => {
     const { productId } = req.params;
@@ -350,7 +355,6 @@ const removeFromWishlist = asyncHandler(async (req, res) => {
         new ApiResponse(200, "Item removed from wishlist successfully")
     );
 });
-
 
 
 module.exports = { createProduct, getAllProducts, getProduct, updateProduct, deleteProduct , searchProducts, addReview, getProductReviews, addToWishlist, getWishlist, removeFromWishlist };

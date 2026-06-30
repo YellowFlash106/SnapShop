@@ -14,6 +14,7 @@ const buildAddressLine = (addressLine, addressLine1, addressLine2) => {
         .join(', ');
 };
 
+
 const createAddress = asyncHandler(async (req, res) => {
     const {
         fullName,
@@ -55,6 +56,7 @@ const createAddress = asyncHandler(async (req, res) => {
     );
 });
 
+
 const getAddresses = asyncHandler(async (req, res) => {
     const address = await prisma.address.findMany({
         where: {
@@ -69,6 +71,7 @@ const getAddresses = asyncHandler(async (req, res) => {
         new ApiResponse(200, 'Address fetched successfully', address)
     );
 });
+
 
 const getAddressById = asyncHandler(async (req, res) => {
     const addressId = Number(req.params.id);
@@ -92,6 +95,7 @@ const getAddressById = asyncHandler(async (req, res) => {
         new ApiResponse(200, 'Address fetched successfully', address)
     );
 });
+
 
 const updateAddress = asyncHandler(async (req, res) => {
     const addressId = Number(req.params.id);
@@ -134,6 +138,7 @@ const updateAddress = asyncHandler(async (req, res) => {
     );
 });
 
+
 const deleteAddress = asyncHandler(async (req, res) => {
     const addressId = Number(req.params.id);
 
@@ -160,5 +165,6 @@ const deleteAddress = asyncHandler(async (req, res) => {
         new ApiResponse(200, 'Address deleted successfully')
     );
 });
+
 
 module.exports = { createAddress, getAddresses, getAddressById, updateAddress, deleteAddress }

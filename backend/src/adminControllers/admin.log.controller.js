@@ -5,7 +5,6 @@ const asyncHandler = require("../utils/asyncHandler");
 
 const logRepository = require("../repositories/log.repository");
 
-
 const getAllLogs = asyncHandler(async (req, res) => {
     try {
 

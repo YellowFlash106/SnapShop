@@ -140,6 +140,7 @@ const getDashboardOverview = asyncHandler(async (req, res) => {
     );
 });
 
+
 const getAllCustomers = asyncHandler(async (req, res) => {
     const customers = await prisma.user.findMany({
         where: {
@@ -199,6 +200,7 @@ const getCustomerById = asyncHandler(async (req, res) => {
     );
 });
 
+
 const blockUser = asyncHandler(async (req, res) => {
     const userId = Number(req.params.id);
 
@@ -230,6 +232,7 @@ const unBlockUser = asyncHandler(async (req, res) => {
     );
 });
 
+
 const deleteUser = asyncHandler(async (req, res) => {
     const userId = Number(req.params.id);
 
@@ -244,6 +247,7 @@ const deleteUser = asyncHandler(async (req, res) => {
         new ApiResponse(200, 'User deleted successfully', user)
     );
 });
+
 
 const resetUserPassword = asyncHandler(async (req, res) => {
     const userId = Number(req.params.id);
@@ -263,4 +267,5 @@ const resetUserPassword = asyncHandler(async (req, res) => {
     );
 });
     
+
 module.exports = { getDashboardOverview, getAllCustomers, getCustomerById, blockUser, unBlockUser, deleteUser, resetUserPassword };

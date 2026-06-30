@@ -22,7 +22,7 @@ model User {
   name     String
   email    String     @unique
   password String
-  role     String     @default("user")
+  role     Role       @default(user)
   products Product[]
   cart     Cart?
   orders   Order[]
@@ -43,7 +43,7 @@ model Product {
   id          Int     @id @default(autoincrement())
   name        String
   description String?
-  price       Float
+  price       Decimal
   stock       Int
 
   reservedStock Int @default(0)
@@ -72,6 +72,10 @@ model Wishlist {
 
   productId Int
   product   Product @relation(fields: [productId], references: [id])
+
+  @@unique([userId, productId])
+  @@index([userId])
+  @@index([productId])
 }
 
 model Category {
@@ -114,7 +118,7 @@ model Order {
   userId String
   user   User   @relation(fields: [userId], references: [id])
 
-  totalAmount Float
+  totalAmount Decimal
   status      OrderStatus @default(PENDING)
 
   items     OrderItem[]
@@ -135,7 +139,7 @@ model OrderItem {
 
   quantity Int
 
-  price Float
+  price Decimal
 
   createdAt DateTime @default(now())
 }
@@ -172,6 +176,10 @@ model Review {
   product   Product @relation(fields: [productId], references: [id])
 
   createdAt DateTime @default(now())
+
+  @@unique([userId, productId])
+  @@index([userId])
+  @@index([productId])
 }
 
 

@@ -1,13 +1,14 @@
 const prisma = require("../config/prisma");
+const asyncHandler = require("../utils/asyncHandler");
 
-const createRefreshToken = async (data) => {
+const createRefreshToken = asyncHandler(async (data) => {
     return prisma.refreshToken.create({
         data,
     });
-};
+});
 
 
-const findRefreshToken = async (token) => {
+const findRefreshToken = asyncHandler(async (token) => {
     return prisma.refreshToken.findUnique({
         where: {
             token,
@@ -16,25 +17,25 @@ const findRefreshToken = async (token) => {
             user: true,
         },
     });
-};
+});
 
 
-const deleteRefreshToken = async (id) => {
+const deleteRefreshToken = asyncHandler(async (id) => {
     return prisma.refreshToken.delete({
         where: {
             id,
         }
     });
-};
+});
 
 
-const deleteUserRefreshTokens = async (userId) => {
+const deleteUserRefreshTokens = asyncHandler(async (userId) => {
     return prisma.refreshToken.deleteMany({
         where: {
             userId,
         }
     });
-};
+});
 
 
 module.exports = {

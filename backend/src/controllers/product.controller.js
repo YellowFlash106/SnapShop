@@ -1,4 +1,3 @@
-
 const prisma = require('../config/prisma');
 const asyncHandler = require("../utils/asyncHandler");
 const ApiError = require("../utils/ApiError");
@@ -229,6 +228,39 @@ const deleteProduct = asyncHandler(async (req, res) => {
 });
 
 
+const productOwnership = asyncHandler(async (req, res, next) => {
+    try {
+        const user = req.user;
+        const productId = req.params.id;
+
+        const product = await prisma.product.findUnique({
+            where: {
+                id: Number(productId)
+            }
+        });
+
+        if (!product) {
+            throw new ApiError(404, "Product not found");
+        }
+
+         if (user.role === "ADMIN" || user.role === "SUPER_ADMIN") {
+            req.product = product;
+            return next();
+        }
+
+        if (product.createdById !== user.id) {
+            throw new ApiError(403, "You are not allowed to modify this product");
+        }
+
+        req.product = product;
+        next();
+
+    } catch (error) {
+        next(error);
+    }
+});
+
+
 const addReview = asyncHandler(async (req, res) => {
     const { productId } = req.params;
     const { rating, comment } = req.body;
@@ -357,5 +389,5 @@ const removeFromWishlist = asyncHandler(async (req, res) => {
 });
 
 
-module.exports = { createProduct, getAllProducts, getProduct, updateProduct, deleteProduct , searchProducts, addReview, getProductReviews, addToWishlist, getWishlist, removeFromWishlist };
+module.exports = { createProduct, getAllProducts, getProduct, updateProduct, deleteProduct , searchProducts, addReview, getProductReviews, addToWishlist, getWishlist, removeFromWishlist, productOwnership };
 

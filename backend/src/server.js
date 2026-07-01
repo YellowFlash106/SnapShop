@@ -9,6 +9,9 @@ const app = express();
 
 const errorMiddleware = require("./middleware/error.middleware");
 const authRouter = require("./routes/auth.route")
+const userRouter = require("./routes/user.route")
+const roleRouter = require("./routes/role.route")
+const rolePermissionRouter = require("./routes/rolePermission.route")
 const productRouter = require("./routes/product.route")
 const orderRouter = require("./routes/order.route")
 const cartRouter = require("./routes/cart.route")
@@ -35,6 +38,9 @@ app.use(cors({
 app.use(globalLimiter);
 
 app.use("/api/auth", authRouter);
+app.use("/api/roles", roleRouter);
+app.use("/api/role-permissions", rolePermissionRouter);
+app.use("/api/users", userRouter);
 app.use("/api/cart", cartRouter);
 app.use("/api/products", productRouter);
 app.use("/api/orders", orderRouter);

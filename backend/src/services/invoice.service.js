@@ -1,7 +1,8 @@
 const PDFDocument = require('pdfkit');
 const prisma = require('../config/prisma');
+const asyncHandler = require('../utils/asyncHandler');
 
-const generateInvoice = async (orderId, res, userId) => {
+const generateInvoice = asyncHandler(async (orderId, res, userId) => {
     const parsedOrderId = Number(orderId);
 
     const order = await prisma.order.findUnique({
@@ -38,6 +39,6 @@ const generateInvoice = async (orderId, res, userId) => {
     });
 
     doc.end();
-}
+})
 
 module.exports = { generateInvoice };
